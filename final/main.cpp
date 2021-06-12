@@ -14,7 +14,7 @@ volatile int last;
 Thread t1, t2;
 Timer t;
 
-int global_state = 0;
+int global_state = 0, pre_state = 0;
 char data[35] = {0};
 int first = 1;
 int angle = 0;
@@ -51,10 +51,11 @@ void car_control(void) {
     int t_x, sign2;
     int flag_line = 0, flag_ap = 0;
     int d_park = 0;
-    char buffer[5]={0};
+    char buffer[16]={0};
     global_state = 0;
     car.stop();
-//    printf("Start\n");
+    sprintf(buffer, "Start         \r\n");
+    xbee.write(buffer, sizeof(buffer));
     while(1) {
         if(data[22] == 'y') flag_line = 1;
         else if(data[22] == 'n') flag_line = 0;
@@ -73,13 +74,25 @@ void car_control(void) {
             ThisThread::sleep_for(200ms);
             first = 1;
             distance = 100 * int(data[6] - '0') + 10 * int(data[7] - '0') + int(data[8] - '0');
-            if(distance < 60 && flag_ap == 1 && distance > 20) {
+            if(pre_state == 0 && distance < 60 && flag_ap == 1 && distance > 20) {
                 global_state = 1;
                 car.stop();
+                sprintf(buffer, "Line finish   \r\n");
+                xbee.write(buffer, sizeof(buffer));
                 ThisThread::sleep_for(1000ms);
+            }
+            else if(pre_state == 6) {
+                if(val < 50) {
+                    global_state = 7;
+                    car.stop();
+                    sprintf(buffer, "Line finish   \r\n");
+                    xbee.write(buffer, sizeof(buffer));
+                    ThisThread::sleep_for(1000ms);
+                }
             }
         }
         else if(global_state == 1) {
+         //   printf("AP:%d\n", flag_ap);
             if(flag_ap) {
                 if(first == 1) {
                     car.stop();
@@ -105,6 +118,11 @@ void car_control(void) {
                     sign = int(data[14] - '0');
                     if(sign == 2) angle = -angle;
                     diff = angle - last_angle;
+
+                    if(data[0] == 'Y') flag_ap = 1;
+                    else if(data[0] == 'N') flag_ap = 0;
+                    if(flag_ap == 1) {
+
                     if(angle >= 0 && last_angle >= 0 && diff < 0) type = 0;  // right vertical
                     else if(angle >= 0 && last_angle >= 0 && diff >= 0) type = 1;   // right slant
                     else if(angle <= 0 && last_angle <= 0 && diff > 0) type = 2;  // left vertical
@@ -112,12 +130,36 @@ void car_control(void) {
                     else if(angle <= 0 && last_angle >= 0) type = 4; // then do l -> r
                     else if(angle >= 0 && last_angle <= 0) type = 5; // then do r -> l 
                     last_angle = angle;
+
+                    }
+                    else {
+                        while(flag_ap == 0) {
+                            if(last_angle >= 0) {
+                                car.turn(20, 0.1);
+                                type = 1;
+                            }
+                            else {
+                                car.turn(20, -0.05);
+                                type = 3;
+                            }
+                            ThisThread::sleep_for(500ms);
+                            car.stop();
+                            ThisThread::sleep_for(500ms);
+                            angle = 100 * int(data[10] - '0') + 10 * int(data[11] - '0') + int(data[12] - '0');
+                            sign = int(data[14] - '0');
+                            if(sign == 2) angle = -angle;
+                            last_angle = angle;
+                            if(data[0] == 'Y') flag_ap = 1;
+                            else if(data[0] == 'N') flag_ap = 0;
+                        }
+                    }
                 }
-                else if(!first && (distance >= 30 || val >= 30) && flag_ap ) {   //modify
+                else if(!first && distance >= 30) {   //modify
+                //else if(!first && (distance >= 30 || val >= 30) && flag_ap ) {   //modify
                     if(type == 0 || type == 2) {
                         car.goStraight(30);   
                         if(distance >= 50) ThisThread::sleep_for(3000ms);  
-                        else ThisThread::sleep_for(1000ms);  
+                        else ThisThread::sleep_for(500ms);  
                     }
                     else if(type == 1) {
                         car.turn(20, 0.1);
@@ -125,11 +167,11 @@ void car_control(void) {
                     }
                     else if(type == 3) {
                         car.turn(20, -0.05);
-                        ThisThread::sleep_for(1000ms);
+                        ThisThread::sleep_for(1500ms);
                     }
                     else if(type == 4) {
                         car.turn(20, -0.05);
-                        ThisThread::sleep_for(1000ms);
+                        ThisThread::sleep_for(1500ms);
                     }
                     else if(type == 5) {
                         car.turn(20, 0.1);
@@ -139,7 +181,11 @@ void car_control(void) {
                         car.stop();
                     }
                     car.stop();
-                    ThisThread::sleep_for(300ms);    
+                    ThisThread::sleep_for(300ms);   
+
+                    if(data[0] == 'Y') flag_ap = 1;
+                    else if(data[0] == 'N') flag_ap = 0;
+
                     if(flag_ap) {
                         distance = 100 * int(data[6] - '0') + 10 * int(data[7] - '0') + int(data[8] - '0');
                         angle = 100 * int(data[10] - '0') + 10 * int(data[11] - '0') + int(data[12] - '0');
@@ -158,17 +204,21 @@ void car_control(void) {
                         else if(angle >= 0 && last_angle <= 0) type = 5; // then do r -> l
                         last_angle = angle;
                     }
+             //       printf("%d\n", type);
                 }
-                else if((t_x > 3 || t_x < -3) && flag_ap) {
+                else if((t_x > 3 || t_x < - 3)) {
+                    //else if((t_x > 3 || t_x < -3) && flag_ap) {
                     if(t_x > 0) {
                         car.turn(20, 0.1);
                         type = 5;
                         ThisThread::sleep_for(500ms);
+                     //   printf("A\n");
                     }
                     else if(t_x < 0) {
                         car.turn(20, -0.05);
                         type = 4;
                         ThisThread::sleep_for(500ms);
+                     //   printf("B\n");
                     }
                     car.stop();
                     ThisThread::sleep_for(200ms);
@@ -179,7 +229,7 @@ void car_control(void) {
                     sign2 = int(data[20] - '0');
                     if(sign2 == 2) t_x = -t_x;
                 }
-                else {
+                else if(val < 50) {
               //      char buffer[26];
                     car.stop();
                     type = 6;
@@ -204,8 +254,18 @@ void car_control(void) {
                         ThisThread::sleep_for(500ms);
                         type = 2;
                     }
-                    else {
+                    else { 
                         if(angle < 0) angle = -angle;
+                        while(t_x > 3 || t_x < - 3) {
+                            if(t_x > 0) {
+                                car.turn(20, 0.1);
+                                ThisThread::sleep_for(500ms);
+                            }
+                            else if(t_x < 0) {
+                                car.turn(20, -0.05);
+                                ThisThread::sleep_for(500ms);
+                            }
+                        }
                         while(val > 30 && val <= 50) {
                             car.goStraight(30);   
                             ThisThread::sleep_for(500ms);
@@ -215,20 +275,24 @@ void car_control(void) {
                         
                         //    sprintf(buffer, "Distance %03d, Angle %03d\r\n", int(val), angle);
                        //     xbee.write(buffer, sizeof(buffer));
-                        //    printf("%s\n", buffer);
+                       //     printf("%s\n", buffer);
+                            sprintf(buffer, "Tag finish    \r\n");
+                            xbee.write(buffer, sizeof(buffer));
                             d_park = val;
                             int id = 10 * int(data[3] - '0') + int(data[4] - '0');
                             if(id == 0) global_state = 2;
                             else if(id == 2) global_state = 4;
+                            else if(id == 3) global_state = 6;
                     }
                 }
                 first = 0;
             }
             else if(flag_ap == 0){
+                printf("OOps\n");
                 if(type == 0) {
                 //   printf("right vertical over, go right\n");
                     car.turn(20, -0.05);
-                    ThisThread::sleep_for(1000ms);
+                    ThisThread::sleep_for(1500ms);
                 }
                 else if(type == 2) {
                 //   printf("left vertical over, go left\n");
@@ -238,7 +302,7 @@ void car_control(void) {
                 else if(type == 1) {
                 //   printf("right slant over, go right\n");
                     car.turn(20, -0.05);
-                    ThisThread::sleep_for(1000ms);
+                    ThisThread::sleep_for(1500ms);
                 }
                 else if(type == 3) {
                 // printf("left slant over, go left\n");
@@ -253,7 +317,7 @@ void car_control(void) {
                 else if(type == 5) {
                 //  printf("r -> l over, go right\n");
                     car.turn(20, -0.05);
-                    ThisThread::sleep_for(1000ms);
+                    ThisThread::sleep_for(1500ms);
                 }
                 else if(type == 6) car.stop();
                 car.stop();
@@ -301,22 +365,28 @@ void car_control(void) {
             while(steps*6.5*3.14/32 < 25) ThisThread::sleep_for(10ms);  
             car.stop();
        //     printf("Finish Parking\n");
+            sprintf(buffer, "Parking finish\r\n");
+            xbee.write(buffer, sizeof(buffer));
             ThisThread::sleep_for(5s);
             global_state = 3;
         }
         else if(global_state == 3) {
             car.goStraight(30);
-            ThisThread::sleep_for(4000ms);
+            ThisThread::sleep_for(5000ms);
             global_state = 1;
             first = 1;
         }
         else if(global_state == 4) {
-            car.goStraight(30);
-            ThisThread::sleep_for(1500ms);
+            while(val > 20) {
+                car.goStraight(30);
+                ThisThread::sleep_for(500ms);
+            }
+          //  car.goStraight(30);
+          //  ThisThread::sleep_for(1500ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             car.turn(200, -0.05);
-            ThisThread::sleep_for(700ms);
+            ThisThread::sleep_for(750ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             while(val >= 20) {
@@ -326,7 +396,7 @@ void car_control(void) {
             car.stop();
             ThisThread::sleep_for(1000ms);
             car.turn(200, -0.05);
-            ThisThread::sleep_for(700ms);
+            ThisThread::sleep_for(750ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             while(val >= 15) {
@@ -343,17 +413,67 @@ void car_control(void) {
             int label;
             for(i = 0; i < 5; i++) {
                 int label = int(data[28] - '0');
-                if(label == 0) sprintf(buffer, "Cat\r\n");
-                else sprintf(buffer, "Dog\r\n");
+                if(label == 0) sprintf(buffer, "Cat           \r\n");
+                else sprintf(buffer, "Dog           \r\n");
                 xbee.write(buffer, sizeof(buffer));
-            //    printf("%s\n", buffer);
+                printf("%s\n", buffer);
                 ThisThread::sleep_for(1000ms);
             }
             car.turn(200, -0.05);
-            ThisThread::sleep_for(700ms);
+            ThisThread::sleep_for(750ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             global_state = 0;
+        }
+        else if (global_state == 6) {
+            while(val >= 15) {
+                car.goStraight(30);
+                ThisThread::sleep_for(10ms);
+            }
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            car.turn(200, -0.05);
+            ThisThread::sleep_for(3000ms);
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            global_state = 0;
+            pre_state = 6;
+        }
+        else if(global_state == 7) {
+            while(val > 20) {
+                car.goStraight(30);
+                ThisThread::sleep_for(500ms);
+            }
+          //  car.goStraight(30);
+          //  ThisThread::sleep_for(1500ms);
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            car.turn(200, 0.05);
+            ThisThread::sleep_for(750ms);
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            while(val >= 15) {
+                car.goStraight(30);
+                ThisThread::sleep_for(10ms);
+            }
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            global_state = 8;
+        }
+        else if (global_state == 8) {
+            int i = 0;
+            int label;
+            for(i = 0; i < 5; i++) {
+                int label = int(data[28] - '0');
+                if(label == 0) sprintf(buffer, "Cat           \r\n");
+                else sprintf(buffer, "Dog           \r\n");
+                xbee.write(buffer, sizeof(buffer));
+                printf("%s\n", buffer);
+                ThisThread::sleep_for(1000ms);
+            }
+            global_state = 9;
+            sprintf(buffer, "All done      \r\n");
+            xbee.write(buffer, sizeof(buffer));
         }
     }
 }
