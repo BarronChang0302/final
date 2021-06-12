@@ -119,9 +119,9 @@ void car_control(void) {
                     if(sign == 2) angle = -angle;
                     diff = angle - last_angle;
 
-                    if(data[0] == 'Y') flag_ap = 1;
-                    else if(data[0] == 'N') flag_ap = 0;
-                    if(flag_ap == 1) {
+                   // if(data[0] == 'Y') flag_ap = 1;
+                   // else if(data[0] == 'N') flag_ap = 0;
+                   // if(flag_ap == 1) {
 
                     if(angle >= 0 && last_angle >= 0 && diff < 0) type = 0;  // right vertical
                     else if(angle >= 0 && last_angle >= 0 && diff >= 0) type = 1;   // right slant
@@ -131,8 +131,8 @@ void car_control(void) {
                     else if(angle >= 0 && last_angle <= 0) type = 5; // then do r -> l 
                     last_angle = angle;
 
-                    }
-                    else {
+                //    }
+                 /*   else {
                         while(flag_ap == 0) {
                             if(last_angle >= 0) {
                                 car.turn(20, 0.1);
@@ -152,7 +152,7 @@ void car_control(void) {
                             if(data[0] == 'Y') flag_ap = 1;
                             else if(data[0] == 'N') flag_ap = 0;
                         }
-                    }
+                    } */
                 }
                 else if(!first && distance >= 30) {   //modify
                 //else if(!first && (distance >= 30 || val >= 30) && flag_ap ) {   //modify
@@ -167,11 +167,11 @@ void car_control(void) {
                     }
                     else if(type == 3) {
                         car.turn(20, -0.05);
-                        ThisThread::sleep_for(1500ms);
+                        ThisThread::sleep_for(1000ms);
                     }
                     else if(type == 4) {
                         car.turn(20, -0.05);
-                        ThisThread::sleep_for(1500ms);
+                        ThisThread::sleep_for(1000ms);
                     }
                     else if(type == 5) {
                         car.turn(20, 0.1);
@@ -183,8 +183,8 @@ void car_control(void) {
                     car.stop();
                     ThisThread::sleep_for(300ms);   
 
-                    if(data[0] == 'Y') flag_ap = 1;
-                    else if(data[0] == 'N') flag_ap = 0;
+              //      if(data[0] == 'Y') flag_ap = 1;
+              //      else if(data[0] == 'N') flag_ap = 0;
 
                     if(flag_ap) {
                         distance = 100 * int(data[6] - '0') + 10 * int(data[7] - '0') + int(data[8] - '0');
@@ -206,8 +206,7 @@ void car_control(void) {
                     }
              //       printf("%d\n", type);
                 }
-                else if((t_x > 3 || t_x < - 3)) {
-                    //else if((t_x > 3 || t_x < -3) && flag_ap) {
+                else if((t_x > 2 || t_x < - 2)) {
                     if(t_x > 0) {
                         car.turn(20, 0.1);
                         type = 5;
@@ -229,14 +228,17 @@ void car_control(void) {
                     sign2 = int(data[20] - '0');
                     if(sign2 == 2) t_x = -t_x;
                 }
-                else if(val < 50) {
+                else /*if(val < 50)*/ {
               //      char buffer[26];
                     car.stop();
                     type = 6;
-                    angle = 100 * int(data[10] - '0') + 10 * int(data[11] - '0') + int(data[12] - '0');
-                    sign = int(data[14] - '0');
-                    if(sign == 2) angle = -angle;
-                    if(angle > 5) {
+                   // angle = 100 * int(data[10] - '0') + 10 * int(data[11] - '0') + int(data[12] - '0');
+                   // sign = int(data[14] - '0');
+                   // if(sign == 2) angle = -angle;
+                   // t_x = 100 * int(data[16] - '0') + 10 * int(data[17] - '0') + int(data[18] - '0');
+                   // sign2 = int(data[20] - '0');
+                   // if(sign2 == 2) t_x = -t_x;
+                    if(angle > 2) {
                         car.goStraight(-30);   
                         ThisThread::sleep_for(1500ms);
                         car.turn(20, 0.1);
@@ -245,7 +247,7 @@ void car_control(void) {
                         ThisThread::sleep_for(500ms);
                         type = 0;
                     }
-                    else if(angle < -5) {
+                    else if(angle < -2) {
                         car.goStraight(-30);   
                         ThisThread::sleep_for(1500ms);
                         car.turn(20, -0.05);
@@ -256,28 +258,10 @@ void car_control(void) {
                     }
                     else { 
                         if(angle < 0) angle = -angle;
-                        while(t_x > 3 || t_x < - 3) {
-                            if(t_x > 0) {
-                                car.turn(20, 0.1);
-                                ThisThread::sleep_for(500ms);
-                            }
-                            else if(t_x < 0) {
-                                car.turn(20, -0.05);
-                                ThisThread::sleep_for(500ms);
-                            }
-                        }
-                        while(val > 30 && val <= 50) {
-                            car.goStraight(30);   
-                            ThisThread::sleep_for(500ms);
-                            car.stop();
-                            ThisThread::sleep_for(500ms);
-                        }
-                        
-                        //    sprintf(buffer, "Distance %03d, Angle %03d\r\n", int(val), angle);
-                       //     xbee.write(buffer, sizeof(buffer));
-                       //     printf("%s\n", buffer);
                             sprintf(buffer, "Tag finish    \r\n");
                             xbee.write(buffer, sizeof(buffer));
+                         //   sprintf(buffer, "%03d\r\n");
+                         //   xbee.write(buffer, sizeof(buffer));
                             d_park = val;
                             int id = 10 * int(data[3] - '0') + int(data[4] - '0');
                             if(id == 0) global_state = 2;
@@ -386,7 +370,7 @@ void car_control(void) {
             car.stop();
             ThisThread::sleep_for(1000ms);
             car.turn(200, -0.05);
-            ThisThread::sleep_for(750ms);
+            ThisThread::sleep_for(730ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             while(val >= 20) {
@@ -396,7 +380,7 @@ void car_control(void) {
             car.stop();
             ThisThread::sleep_for(1000ms);
             car.turn(200, -0.05);
-            ThisThread::sleep_for(750ms);
+            ThisThread::sleep_for(730ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             while(val >= 15) {
@@ -420,7 +404,7 @@ void car_control(void) {
                 ThisThread::sleep_for(1000ms);
             }
             car.turn(200, -0.05);
-            ThisThread::sleep_for(750ms);
+            ThisThread::sleep_for(730ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             global_state = 0;
