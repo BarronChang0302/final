@@ -71,7 +71,7 @@ void car_control(void) {
             ThisThread::sleep_for(200ms);
             first = 1;
             distance = 100 * int(data[6] - '0') + 10 * int(data[7] - '0') + int(data[8] - '0');
-            if(distance < 60 && flag_ap == 1 && val < 60) {
+            if(distance < 70 && flag_ap == 1 && val < 70) {
                 global_state = 1;
                 car.stop();
                 ThisThread::sleep_for(1000ms);
@@ -217,7 +217,7 @@ void car_control(void) {
                             d_park = val;
                             int id = 10 * int(data[3] - '0') + int(data[4] - '0');
                             if(id == 0) global_state = 2;
-                         //   else if(id == 2) global_state = 
+                            else if(id == 2) global_state = 4;
                     }
                 }
                 first = 0;
@@ -296,11 +296,17 @@ void car_control(void) {
             steps = 0;
             last = 0;
             car.goStraight(-40);
-            while(steps*6.5*3.14/32 < 15) ThisThread::sleep_for(10ms);  
+            while(steps*6.5*3.14/32 < 20) ThisThread::sleep_for(10ms);  
             car.stop();
             printf("Finish Parking\n");
             ThisThread::sleep_for(5s);
             global_state = 3;
+        }
+        else if(global_state == 3) {
+            car.goStraight(30);
+            ThisThread::sleep_for(4000ms);
+            global_state = 1;
+            first = 1;
         }
     }
 }
