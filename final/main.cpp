@@ -299,6 +299,7 @@ void car_control(void) {
             while(steps*6.5*3.14/32 < 15) ThisThread::sleep_for(10ms);  
             car.stop();
             printf("Finish Parking\n");
+            ThisThread::sleep_for(5s);
             global_state = 3;
         }
     }
