@@ -38,9 +38,10 @@ void for_ping(void) {
       while(ping.read() == 1);
       val = t.read();
       val = val*17700.4f;
+     // printf("%f\n", val);
       t.stop();
       t.reset();
-      ThisThread::sleep_for(5s);
+      ThisThread::sleep_for(10ms);
    }
 }
 
@@ -52,18 +53,18 @@ void car_control(void) {
     int d_park = 0;
     global_state = 0;
     car.stop();
-    printf("Start\n");
+//    printf("Start\n");
     while(1) {
         if(data[22] == 'y') flag_line = 1;
         else if(data[22] == 'n') flag_line = 0;
         if(data[0] == 'Y') flag_ap = 1;
         else if(data[0] == 'N') flag_ap = 0;
-        printf("%d, %d\n", global_state, d_park);
+ //       printf("%d, %d\n", global_state, d_park);
         if(global_state == 0) {
             if(flag_line) {
                 int diff = 100 * int(data[24] - '0') + 10 * int(data[25] - '0') + int(data[26] - '0');
                 int sign_line = int(data[28] - '0');
-                printf("%d, %d\n", diff, sign_line);
+            //    printf("%d, %d\n", diff, sign_line);
                 if(sign_line == 0) car.twoSpeed(30, -30-diff/1.5f);
                 else car.twoSpeed(30+diff/1.5f, -30);                     // 200 200 20,diff/2
             }
@@ -71,7 +72,7 @@ void car_control(void) {
             ThisThread::sleep_for(200ms);
             first = 1;
             distance = 100 * int(data[6] - '0') + 10 * int(data[7] - '0') + int(data[8] - '0');
-            if(distance < 70 && flag_ap == 1 && val < 70) {
+            if(distance < 60 && flag_ap == 1 && distance > 20) {
                 global_state = 1;
                 car.stop();
                 ThisThread::sleep_for(1000ms);
@@ -83,7 +84,7 @@ void car_control(void) {
                     car.stop();
                     ThisThread::sleep_for(1000ms);
                     car.goStraight(30);   
-                    ThisThread::sleep_for(1000ms);
+                    ThisThread::sleep_for(500ms);  //1000
                     car.stop();
                     ThisThread::sleep_for(500ms);
 
@@ -111,7 +112,7 @@ void car_control(void) {
                     else if(angle >= 0 && last_angle <= 0) type = 5; // then do r -> l 
                     last_angle = angle;
                 }
-                else if(!first && distance >= 30 && flag_ap) {
+                else if(!first && (distance >= 30 || val >= 50) && flag_ap ) {   //modify
                     if(type == 0 || type == 2) {
                         car.goStraight(30);   
                         if(distance >= 50) ThisThread::sleep_for(3000ms);  
@@ -204,7 +205,7 @@ void car_control(void) {
                     }
                     else {
                         if(angle < 0) angle = -angle;
-                        while(val > 30) {
+                        while(val > 30 && val <= 50) {
                             car.goStraight(30);   
                             ThisThread::sleep_for(500ms);
                             car.stop();
@@ -282,7 +283,7 @@ void car_control(void) {
             steps = 0;
             last = 0;
             car.goStraight(-40);
-            while(steps*6.5*3.14/32 < 40 - d_park) ThisThread::sleep_for(10ms);
+            while(steps*6.5*3.14/32 < 35 - d_park) ThisThread::sleep_for(10ms);
 
             car.stop();
             ThisThread::sleep_for(1s);
@@ -296,9 +297,9 @@ void car_control(void) {
             steps = 0;
             last = 0;
             car.goStraight(-40);
-            while(steps*6.5*3.14/32 < 20) ThisThread::sleep_for(10ms);  
+            while(steps*6.5*3.14/32 < 25) ThisThread::sleep_for(10ms);  
             car.stop();
-            printf("Finish Parking\n");
+       //     printf("Finish Parking\n");
             ThisThread::sleep_for(5s);
             global_state = 3;
         }
@@ -307,6 +308,45 @@ void car_control(void) {
             ThisThread::sleep_for(4000ms);
             global_state = 1;
             first = 1;
+        }
+        else if(global_state == 4) {
+            car.goStraight(30);
+            ThisThread::sleep_for(1500ms);
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            car.turn(200, -0.05);
+            ThisThread::sleep_for(700ms);
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            while(val >= 20) {
+                car.goStraight(30);
+                ThisThread::sleep_for(10ms);
+            }
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            car.turn(200, -0.05);
+            ThisThread::sleep_for(700ms);
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            while(val >= 15) {
+                car.goStraight(30);
+                ThisThread::sleep_for(10ms);
+            }
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+
+            global_state = 5;
+        }
+        else if (global_state == 5) {
+            int i = 0;
+            int label;
+            for(i = 0; i < 5; i++) {
+                int label = int(data[28] - '0');
+                if(label == 0) printf("Cat\n");
+                else printf("Dog\n");
+                ThisThread::sleep_for(1000ms);
+            }
+            global_state = 6;
         }
     }
 }
