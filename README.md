@@ -1,5 +1,4 @@
 # final
-# hw4
 The structure in the following picture can be used in all 3 parts. <br>
 ![195981680_472640117332620_8393154622717387120_n](https://user-images.githubusercontent.com/79574115/121262991-8cca4980-c8e7-11eb-9490-8f53aa978ba1.jpg)
 ![196212873_319378759804997_2960565786612567354_n](https://user-images.githubusercontent.com/79574115/121262995-8f2ca380-c8e7-11eb-8bb1-1d69ffd89e9e.jpg)
