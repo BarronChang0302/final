@@ -315,12 +315,16 @@ void car_control(void) {
                     else if(angle >= 0 && type == 1) type = 0;  
                     else if(angle <= 0 && type == 3) type = 2;  
                     else if(/*angle >= 0 && */type == 4) {
+                        car.turn(20, -0.05);
+                        ThisThread::sleep_for(1500ms);
                         car.goStraight(30);   
                         ThisThread::sleep_for(1000ms);
                         car.stop();
                         type = 5;   // 5 
                     }
                     else if(/*angle <= 0 && */type == 5) {
+                        car.turn(20, 0.1);
+                        ThisThread::sleep_for(1000ms);
                         car.goStraight(30);   
                         ThisThread::sleep_for(1000ms);
                         car.stop();
@@ -374,7 +378,7 @@ void car_control(void) {
             car.stop();
             ThisThread::sleep_for(1000ms);
             car.turn(200, -0.05);
-            ThisThread::sleep_for(735ms);
+            ThisThread::sleep_for(740ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             while(val >= 20) {
@@ -384,7 +388,7 @@ void car_control(void) {
             car.stop();
             ThisThread::sleep_for(1000ms);
             car.turn(200, -0.05);
-            ThisThread::sleep_for(735ms);
+            ThisThread::sleep_for(740ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             while(val >= 15) {
@@ -408,7 +412,7 @@ void car_control(void) {
                 ThisThread::sleep_for(1000ms);
             }
             car.turn(200, -0.05);
-            ThisThread::sleep_for(735ms);
+            ThisThread::sleep_for(740ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             int sign_line = int(data[28] - '0');
