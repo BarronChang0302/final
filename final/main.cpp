@@ -19,6 +19,7 @@ char data[35] = {0};
 int first = 1;
 int angle = 0;
 float val;
+int pre_state = 0;
 
 void encoder_control() {
    int value = encoder;
@@ -70,19 +71,28 @@ void car_control(void) {
                 int diff = 100 * int(data[24] - '0') + 10 * int(data[25] - '0') + int(data[26] - '0');
                 int sign_line = int(data[28] - '0');
             //    printf("%d, %d\n", diff, sign_line);
-                if(sign_line == 0) car.twoSpeed(30, -30-diff/1.5f);
-                else car.twoSpeed(30+diff/1.5f, -30);                     // 200 200 20,diff/2
+                if(sign_line == 0) car.twoSpeed(25, -25-diff/1.5f);
+                else car.twoSpeed(25+diff/1.5f, -25);                     // 200 200 20,diff/2
             }
             else car.twoSpeed(0, 0);
             ThisThread::sleep_for(200ms);
             first = 1;
             distance = 100 * int(data[6] - '0') + 10 * int(data[7] - '0') + int(data[8] - '0');
-            if(distance < 60 && flag_ap == 1 && distance > 20) {
+            if(pre_state == 0 && distance < 60 && flag_ap == 1 && distance > 20) {
                 global_state = 1;
                 car.stop();
                 sprintf(buffer, "Line finish   \r\n");
                 xbee.write(buffer, sizeof(buffer));
                 ThisThread::sleep_for(1000ms);
+            }
+            else if(pre_state == 6) {
+                if(val < 50) {
+                    global_state = 7;
+                    car.stop();
+                    sprintf(buffer, "Line finish   \r\n");
+                    xbee.write(buffer, sizeof(buffer));
+                    ThisThread::sleep_for(1000ms);
+                }
             }
         }
         else if(global_state == 1) {
@@ -243,7 +253,7 @@ void car_control(void) {
                       //  if(angle < 0) angle = -angle;
                             int id = 10 * int(data[3] - '0') + int(data[4] - '0');
                             sprintf(buffer, "Tag finish,ID%01d\r\n", id);
-                            xbee.write(buffer, sizeof(buffer));
+                            if(id != 1) xbee.write(buffer, sizeof(buffer));
                          //   sprintf(buffer, "%03d\r\n");
                          //   xbee.write(buffer, sizeof(buffer));
                             d_park = val;
@@ -378,7 +388,7 @@ void car_control(void) {
             car.stop();
             ThisThread::sleep_for(1000ms);
             car.turn(200, -0.05);
-            ThisThread::sleep_for(740ms);
+            ThisThread::sleep_for(755ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             while(val >= 20) {
@@ -388,7 +398,7 @@ void car_control(void) {
             car.stop();
             ThisThread::sleep_for(1000ms);
             car.turn(200, -0.05);
-            ThisThread::sleep_for(740ms);
+            ThisThread::sleep_for(755ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             while(val >= 15) {
@@ -412,7 +422,7 @@ void car_control(void) {
                 ThisThread::sleep_for(1000ms);
             }
             car.turn(200, -0.05);
-            ThisThread::sleep_for(740ms);
+            ThisThread::sleep_for(755ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
             int sign_line = int(data[28] - '0');
@@ -431,22 +441,64 @@ void car_control(void) {
             steps = 0;
             last = 0;
         }
-        else if (global_state == 6) {
-            steps = 0;
-            last = 0;
-            while(steps*6.5*3.14/32 < en_d) {
-                if(flag_line) {
-                    int diff = 100 * int(data[24] - '0') + 10 * int(data[25] - '0') + int(data[26] - '0');
-                    int sign_line = int(data[28] - '0');
-                    if(sign_line == 0) car.twoSpeed(-20-diff/1.5, 20);
-                    else car.twoSpeed(-20, 20+diff/1.5f);                     // 200 200 20,diff/2
-                }
-                else car.twoSpeed(-20, 20);
-                ThisThread::sleep_for(200ms);
+        else if(global_state == 6) {
+            car.twoSpeed(50, 50); 
+            ThisThread::sleep_for(2400ms);
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            int sign_line = int(data[28] - '0');
+            diff = 100 * int(data[24] - '0') + 10 * int(data[25] - '0') + int(data[26] - '0');
+            while(diff > 5) {
+                if(sign_line == 0) car.turn(20, 0.1);
+                else car.turn(20, -0.05);
+                ThisThread::sleep_for(300ms);
+                car.stop();
+                sign_line = int(data[28] - '0');
+                diff = 100 * int(data[24] - '0') + 10 * int(data[25] - '0') + int(data[26] - '0');
             }
             car.stop();
             ThisThread::sleep_for(1000ms);
-            global_state = 7;
+            sprintf(buffer, "Turn finish   \r\n");
+            xbee.write(buffer, sizeof(buffer));
+            global_state = 0;
+            steps = 0;
+            last = 0;
+            pre_state = 6;
+        }
+        else if(global_state == 7) {
+            while(val > 20) {
+                car.goStraight(30);
+                ThisThread::sleep_for(10ms);
+            }
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            car.turn(200, 0.05);
+            ThisThread::sleep_for(730ms);
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            while(val > 25) {
+                car.goStraight(30);
+                ThisThread::sleep_for(10ms);
+            }
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+
+            global_state = 8;
+        }
+        else if(global_state == 8) {
+            int i = 0;
+            int label;
+            for(i = 0; i < 5; i++) {
+                int label = int(data[28] - '0');
+                if(label == 0) sprintf(buffer, "Cat           \r\n");
+                else sprintf(buffer, "Dog           \r\n");
+                xbee.write(buffer, sizeof(buffer));
+                printf("%s\n", buffer);
+                ThisThread::sleep_for(1000ms);
+            }
+            sprintf(buffer, "All Done      \r\n");
+            xbee.write(buffer, sizeof(buffer));
+            global_state = 9;
         }
     }
 }
