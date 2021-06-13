@@ -7,11 +7,16 @@ The structure in the following picture can be used in all 3 parts. <br>
 ![196003108_119939950182851_2034282517340157998_n](https://user-images.githubusercontent.com/79574115/121262999-92279400-c8e7-11eb-96bc-51f8957a62fb.jpg)
 
 ### Route of car <br>
-(a)Overview (see picture) <br>
+(a) Overview (see picture) <br>
 Yellow: Start -> Follow line -> Follow AprilTag -> Reverse Parking <br>
 Red:    Go forward -> Follow Apriltag -> Go forward (using ping) -> Turn right -> Go forward (using ping) -> Turn right -> Go forward (using ping) -> Classify dog image -> Turn right <br>
 Blue:   Modify direction -> Follow line -> Follow AprilTag -> Turn Around -> Modify direction -> Follow line -> Go forward (using ping) -> Turn left <br>
 Green:  Modify direction -> Go forward (using ping) -> Classify cat image <br>
+![199768216_1170523030128235_9157478161956475658_n](https://user-images.githubusercontent.com/79574115/121821856-4f423380-ccce-11eb-8ec1-6f42a53b66db.png)
+(b) Dog image <br>
+![198791911_834683794124648_129817312226115005_n](https://user-images.githubusercontent.com/79574115/121821869-62ed9a00-ccce-11eb-8563-2e7ea0ef28ac.jpg)
+(c) Cat image <br>
+![199716254_390398105697708_4342327163689900390_n](https://user-images.githubusercontent.com/79574115/121821882-6f71f280-ccce-11eb-94be-5bbd4dfc203b.jpg)
 
 ### Setup and Run <br>
 (a) main.cpp for mbed, xbee.py for PC, final.py for OpenMV. <br>
