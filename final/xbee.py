@@ -12,7 +12,7 @@ c = 0
 while True:
     char = s.read(16)
     print(char.decode())
-    while char.decode() == "label 1 finish\r\n" and a == 0:
+    while char.decode() == "Task 2  finish\r\n" and a == 0:
         v1 = input("Enter:v")
         string1 = "/Modify/run " + v1 + "\r"
         s.write(string1.encode())
@@ -22,7 +22,7 @@ while True:
         string1 = "/Modify/run " + v1 + "\r"
         s.write(string1.encode())
         if v1 == "3":  b = 1
-    while char.decode() == "Modify Again  \r\n" and c == 0:
+    while char.decode() == "Task 3  finish\r\n" and c == 0:
         v1 = input("Enter:v")
         string1 = "/Modify/run " + v1 + "\r"
         s.write(string1.encode())

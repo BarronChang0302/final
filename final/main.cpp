@@ -401,6 +401,8 @@ void car_control(void) {
             sprintf(buffer, "Parking finish\r\n");
             xbee.write(buffer, sizeof(buffer));
             ThisThread::sleep_for(5s);
+            sprintf(buffer, "Task 1  finish\r\n");
+            xbee.write(buffer, sizeof(buffer));
             global_state = 3;
         }
         else if(global_state == 3) {
@@ -456,7 +458,7 @@ void car_control(void) {
             ThisThread::sleep_for(755ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
-            sprintf(buffer, "label 1 finish\r\n");
+            sprintf(buffer, "Task 2  finish\r\n");
             xbee.write(buffer, sizeof(buffer));
             prepare = 1;
             while(prepare == 1) ThisThread::sleep_for(1000ms);
@@ -483,6 +485,15 @@ void car_control(void) {
             ThisThread::sleep_for(2400ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
+            car.twoSpeed(-40, -40);
+            ThisThread::sleep_for(500ms);
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+            car.twoSpeed(-40, -40);
+            ThisThread::sleep_for(500ms);
+            car.stop();
+            ThisThread::sleep_for(1000ms);
+
             sprintf(buffer, "Turn finish   \r\n");
             xbee.write(buffer, sizeof(buffer));
             prepare = 2;
@@ -516,7 +527,7 @@ void car_control(void) {
             ThisThread::sleep_for(730ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
-            sprintf(buffer, "Modify Again  \r\n");
+            sprintf(buffer, "Task 3  finish\r\n");
             xbee.write(buffer, sizeof(buffer));
             prepare = 3;
             while(prepare == 3) ThisThread::sleep_for(1000ms);
@@ -540,7 +551,7 @@ void car_control(void) {
                 printf("%s\n", buffer);
                 ThisThread::sleep_for(1000ms);
             }
-            sprintf(buffer, "All Done      \r\n");
+            sprintf(buffer, "Task 4  finish\r\n");
             xbee.write(buffer, sizeof(buffer));
             global_state = 9;
         }
@@ -579,7 +590,7 @@ void Modify(Arguments *in, Reply *out)  {
     v1 = in->getArg<int>();
 
     if(v1 == 1) {
-        car.turn(25, -0.05);
+        car.turn(30, -0.05);
         ThisThread::sleep_for(1000ms);
         car.stop();
         ThisThread::sleep_for(1000ms);
