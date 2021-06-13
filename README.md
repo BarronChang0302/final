@@ -7,10 +7,10 @@ The structure in the following picture can be used in all 3 parts. <br>
 
 ### Route of car <br>
 (a) Overview (see picture) <br>
-Yellow: Start -> Follow line -> Follow AprilTag -> Reverse Parking <br>
-Red:    Go forward -> Follow Apriltag -> Go forward (using ping) -> Turn right -> Go forward (using ping) -> Turn right -> Go forward (using ping) -> Classify dog image -> Turn right <br>
-Blue:   Modify direction -> Follow line -> Follow AprilTag -> Turn Around -> Modify direction -> Follow line -> Go forward (using ping) -> Turn left <br>
-Green:  Modify direction -> Go forward (using ping) -> Classify cat image <br>
+Task1 (yellow): Start -> Follow line -> Follow AprilTag -> Reverse Parking <br>
+Task2 (red)   :    Go forward -> Follow Apriltag -> Go forward (using ping) -> Turn right -> Go forward (using ping) -> Turn right -> Go forward (using ping) -> Classify dog image -> Turn right <br>
+Task3 (blue):   Modify direction -> Follow line -> Follow AprilTag -> Turn Around -> Modify direction -> Follow line -> Go forward (using ping) -> Turn left <br>
+Task4 (green):  Modify direction -> Go forward (using ping) -> Classify cat image <br>
 ![199768216_1170523030128235_9157478161956475658_n](https://user-images.githubusercontent.com/79574115/121821856-4f423380-ccce-11eb-8ec1-6f42a53b66db.png)
 (b) Dog image <br>
 ![198791911_834683794124648_129817312226115005_n](https://user-images.githubusercontent.com/79574115/121821869-62ed9a00-ccce-11eb-8563-2e7ea0ef28ac.jpg)
@@ -32,3 +32,7 @@ Green:  Modify direction -> Go forward (using ping) -> Classify cat image <br>
 | OpenMV(rx) | D0 in mbed, P4 in OpenMV|
 | OpenMV(tx) | D1 in mbed, P5 in OpenMV| 
 | Ping | D12 |
+
+(e) Execute xbee.py first, it will show the message of results and when every subtask is end. <br>
+(f) Compile main.cpp to mbed then the car will start. <br>
+(g) Since the room is narrow, I can't put too much line or tag, and the servo is not ideal. I have to modify the direction in some critical points. xbee.py will ask you "Enter:v" when there is a need of modification. Type 1 for turn right, 2 for turn left, 4 for turn left around, 5 for turn right around, 3 for skip. <br>
