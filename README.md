@@ -36,3 +36,30 @@ Task4 (green):  Modify direction -> Go forward (using ping) -> Classify cat imag
 (e) Execute xbee.py first, it will show the message of results and when every subtask is end. <br>
 (f) Compile main.cpp to mbed then the car will start. <br>
 (g) Since the room is narrow, I can't put too much line or tag, and the servo is not ideal. I have to modify the direction in some critical points. xbee.py will ask you "Enter:v" when there is a need of modification. Type 1 for turn right, 2 for turn left, 4 for turn left around, 5 for turn right around, 3 for skip. <br>
+
+### Result <br>
+(a) Finish line detection <br>
+![197622506_196982722301421_8944878711890183443_n](https://user-images.githubusercontent.com/79574115/121822368-66ceeb80-ccd1-11eb-95eb-18f5c982b4b3.png)
+![198432840_300843398411911_812641380333253358_n](https://user-images.githubusercontent.com/79574115/121822401-88c86e00-ccd1-11eb-8ffb-64f23b00f7c4.png)
+
+(b) Finish Apriltag calibration <br>
+![198987959_1846967682139119_7905934000229943626_n](https://user-images.githubusercontent.com/79574115/121822416-92ea6c80-ccd1-11eb-84e0-cfbd7c057602.png)
+![197781794_864401294434132_6633810895325272014_n](https://user-images.githubusercontent.com/79574115/121822418-94b43000-ccd1-11eb-98f8-eca1c16f763a.png)
+
+(c) Finish reverse parking <br>
+![198038332_195609685779184_2843686435674844709_n](https://user-images.githubusercontent.com/79574115/121822430-a5fd3c80-ccd1-11eb-8f05-f060ac5b9b7b.png)
+![198252220_814648239450248_6116845894913134614_n](https://user-images.githubusercontent.com/79574115/121822435-a7c70000-ccd1-11eb-8523-024987a09298.png)
+
+(d) Classify dog image <br>
+![197998733_140655018041435_3548819678452830030_n](https://user-images.githubusercontent.com/79574115/121822450-ba413980-ccd1-11eb-805d-6e77d737b42e.png)
+![198529192_194809325854714_4306414073535663435_n](https://user-images.githubusercontent.com/79574115/121822453-bc0afd00-ccd1-11eb-94c5-467baa4be758.png)
+
+(e) Turn around <br>
+![200341589_321693199514917_978829107412406380_n](https://user-images.githubusercontent.com/79574115/121822467-cdeca000-ccd1-11eb-80fb-cc1ead6959f0.png)
+
+(f) Need modification <br>
+![199245128_1935905643230342_7164992300410400248_n (2)](https://user-images.githubusercontent.com/79574115/121822489-ed83c880-ccd1-11eb-9ea7-45c0f7a6aaaa.png)
+
+(d) Classify cat image <br>
+![198543394_197402718818255_1143969679462218930_n](https://user-images.githubusercontent.com/79574115/121822500-faa0b780-ccd1-11eb-87ef-92d20d3e0c9b.png)
+![199768343_324440675813145_460815597352690438_n](https://user-images.githubusercontent.com/79574115/121822501-fbd1e480-ccd1-11eb-906a-743e85445bb7.png)
