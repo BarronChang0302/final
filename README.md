@@ -19,8 +19,9 @@ Green:  Modify direction -> Go forward (using ping) -> Classify cat image <br>
 
 ### Setup and Run <br>
 (a) main.cpp for mbed, xbee.py for PC, final.py for OpenMV. <br>
-(b) Add optical encoder, ping, OpenMV and XBee to the car(mbed). <br>
-(c) The following table show the pins and the corresponding function. <br>
+(b) labels.txt and trained.tflite also for OpenMV. <br>
+(c) Add optical encoder, ping, OpenMV and XBee to the car(mbed). <br>
+(d) The following table show the pins and the corresponding function. <br>
 | Function | Pin |
 |  ----  | ----  |
 | Left servo| D5 |
