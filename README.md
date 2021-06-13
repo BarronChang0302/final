@@ -6,6 +6,13 @@ The structure in the following picture can be used in all 3 parts. <br>
 ![196054281_163966635747804_1284039958029825564_n](https://user-images.githubusercontent.com/79574115/121262997-905dd080-c8e7-11eb-850f-79c597aeca33.jpg)
 ![196003108_119939950182851_2034282517340157998_n](https://user-images.githubusercontent.com/79574115/121262999-92279400-c8e7-11eb-96bc-51f8957a62fb.jpg)
 
+### Route of car <br>
+(a)Overview (see picture) <br>
+Yellow: Start -> Follow line -> Follow AprilTag -> Reverse Parking <br>
+Red:    Go forward -> Follow Apriltag -> Go forward (using ping) -> Turn right -> Go forward (using ping) -> Turn right -> Go forward (using ping) -> Classify dog image -> Turn right <br>
+Blue:   Modify direction -> Follow line -> Follow AprilTag -> Turn Around -> Modify direction -> Follow line -> Go forward (using ping) -> Turn left <br>
+Green:  Modify direction -> Go forward (using ping) -> Classify cat image <br>
+
 ### Setup and Run <br>
 (a) main.cpp for mbed, xbee.py for PC, final.py for OpenMV. <br>
 (b) Add optical encoder, ping, OpenMV and XBee to the car(mbed). <br>
