@@ -1,5 +1,6 @@
 #include"mbed.h"
 #include "bbcar.h"
+#include "mbed_rpc.h"
 Ticker servo_ticker;
 Ticker encoder_ticker;
 PwmOut pin5(D5), pin6(D6);
@@ -8,11 +9,14 @@ BufferedSerial uart(D1,D0); //tx,rx
 DigitalInOut ping(D12);
 BufferedSerial xbee(D10, D9);
 BBCar car(pin5, pin6, servo_ticker);
+void Modify(Arguments *in, Reply *out);
+RPCFunction rpcModify(&Modify, "Modify");
 DigitalIn encoder(D11);
 volatile int steps;
 volatile int last;
-Thread t1, t2;
+Thread t1, t2, t_rpc;
 Timer t;
+int prepare = 0;
 
 int global_state = 0;
 char data[35] = {0};
@@ -20,6 +24,34 @@ int first = 1;
 int angle = 0;
 float val;
 int pre_state = 0;
+char buffer[16] = {0};
+
+void rpc_call(void) {
+    char buf[256], outbuf[256];
+
+    FILE *devin = fdopen(&xbee, "r");
+ //   FILE *devout = fdopen(&xbee, "w");
+
+    while(1) {
+        if(prepare != 0) {
+            memset(buf, 0, 256);
+            for (int i = 0; ; i++) {
+                char recv = fgetc(devin);
+                if (recv == '\n') {
+                    printf("\r\n");
+                    break;
+                }
+                buf[i] = recv;//fputc(recv, devout);
+            }
+            printf("%s\n", buf);
+            //Call the static call method on the RPC class 
+            RPC::call(buf, outbuf);
+        //   printf("%s\r\n", outbuf);
+            sprintf(buffer, "              \r\n");
+        }
+        else ThisThread::sleep_for(1000ms);
+    }
+}
 
 void encoder_control() {
    int value = encoder;
@@ -52,7 +84,6 @@ void car_control(void) {
     int t_x, sign2;
     int flag_line = 0, flag_ap = 0;
     int d_park = 0;
-    char buffer[16]={0};
     float en_d = 0.0;
     int avoid = 0;
 
@@ -198,13 +229,13 @@ void car_control(void) {
                     if(t_x > 0) {
                         car.turn(20, 0.1);
                         type = 5;
-                        ThisThread::sleep_for(500ms);
+                        ThisThread::sleep_for(1000ms); // 500
                      //   printf("A\n");
                     }
                     else if(t_x < 0) {
                         car.turn(20, -0.05);
                         type = 4;
-                        ThisThread::sleep_for(500ms);
+                        ThisThread::sleep_for(1000ms); // 500
                      //   printf("B\n");
                     }
                     car.stop();
@@ -425,6 +456,12 @@ void car_control(void) {
             ThisThread::sleep_for(755ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
+            sprintf(buffer, "label 1 finish\r\n");
+            xbee.write(buffer, sizeof(buffer));
+            prepare = 1;
+            while(prepare == 1) ThisThread::sleep_for(1000ms);
+            sprintf(buffer, "              \r\n");
+            /*
             int sign_line = int(data[28] - '0');
             diff = 100 * int(data[24] - '0') + 10 * int(data[25] - '0') + int(data[26] - '0');
             while(diff > 5) {
@@ -436,7 +473,7 @@ void car_control(void) {
                 diff = 100 * int(data[24] - '0') + 10 * int(data[25] - '0') + int(data[26] - '0');
             }
             car.stop();
-            ThisThread::sleep_for(1000ms);
+            ThisThread::sleep_for(1000ms);*/
             global_state = 0;
             steps = 0;
             last = 0;
@@ -446,6 +483,11 @@ void car_control(void) {
             ThisThread::sleep_for(2400ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
+            sprintf(buffer, "Turn finish   \r\n");
+            xbee.write(buffer, sizeof(buffer));
+            prepare = 2;
+            while(prepare == 2) ThisThread::sleep_for(1000ms);
+            /*
             int sign_line = int(data[28] - '0');
             diff = 100 * int(data[24] - '0') + 10 * int(data[25] - '0') + int(data[26] - '0');
             while(diff > 5) {
@@ -457,9 +499,7 @@ void car_control(void) {
                 diff = 100 * int(data[24] - '0') + 10 * int(data[25] - '0') + int(data[26] - '0');
             }
             car.stop();
-            ThisThread::sleep_for(1000ms);
-            sprintf(buffer, "Turn finish   \r\n");
-            xbee.write(buffer, sizeof(buffer));
+            ThisThread::sleep_for(1000ms);*/
             global_state = 0;
             steps = 0;
             last = 0;
@@ -476,6 +516,10 @@ void car_control(void) {
             ThisThread::sleep_for(730ms);
             car.stop();
             ThisThread::sleep_for(1000ms);
+            sprintf(buffer, "Modify Again  \r\n");
+            xbee.write(buffer, sizeof(buffer));
+            prepare = 3;
+            while(prepare == 3) ThisThread::sleep_for(1000ms);
             while(val > 25) {
                 car.goStraight(30);
                 ThisThread::sleep_for(10ms);
@@ -509,6 +553,7 @@ int main(){
    xbee.set_baud(9600);
    t1.start(car_control);
    t2.start(for_ping);
+   t_rpc.start(rpc_call);
    while(1){
       if(uart.readable()){
          char recv[1];
@@ -525,4 +570,37 @@ int main(){
         }*/
       }
    }
+}
+
+void Modify(Arguments *in, Reply *out)  {
+    // In this scenario, when using RPC delimit the two arguments with a space.
+    int v1;
+
+    v1 = in->getArg<int>();
+
+    if(v1 == 1) {
+        car.turn(25, -0.05);
+        ThisThread::sleep_for(1000ms);
+        car.stop();
+        ThisThread::sleep_for(1000ms);
+    }
+    else if(v1 == 2) {
+        car.turn(20, 0.1);
+        ThisThread::sleep_for(1000ms);
+        car.stop();
+        ThisThread::sleep_for(1000ms);
+    }
+    else if(v1 == 3) prepare = 0;
+    else if(v1 == 4) {
+        car.twoSpeed(-40, -40);
+        ThisThread::sleep_for(500ms);
+        car.stop();
+        ThisThread::sleep_for(1000ms);
+    }
+    else if(v1 == 5) {
+        car.twoSpeed(40, 40);
+        ThisThread::sleep_for(500ms);
+        car.stop();
+        ThisThread::sleep_for(1000ms);
+    }
 }

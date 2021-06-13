@@ -323,4 +323,9 @@ BUILD/B_L4S5I_IOT01A/GCC_ARM/main.o: main.cpp \
  /home/ee2405/ee2405/mbed-os-build2/mbed-os/platform/include/platform/ScopedRamExecutionLock.h \
  /home/ee2405/ee2405/mbed-os-build2/mbed-os/platform/include/platform/mbed_stats.h \
  bbcar/bbcar/bbcar.h bbcar/bbcar/parallax_servo.h \
- bbcar/bbcar/parallax_encoder.h bbcar/bbcar/parallax_ping.h
+ bbcar/bbcar/parallax_encoder.h bbcar/bbcar/parallax_ping.h \
+ bbcar/mbed_rpc/mbed_rpc.h bbcar/mbed_rpc/rpc.h \
+ bbcar/mbed_rpc/Arguments.h \
+ /home/ee2405/ee2405/mbed-os-build2/mbed-os/connectivity/mbedtls/include/mbedtls/platform.h \
+ bbcar/mbed_rpc/RPCVariable.h bbcar/mbed_rpc/RPCFunction.h \
+ bbcar/mbed_rpc/RpcClasses.h
